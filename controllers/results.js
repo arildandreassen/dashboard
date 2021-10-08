@@ -1,9 +1,31 @@
-const { updateDb } = require("../services/mongodb");
+const { MongoClient } = require("mongodb");
+
+const uri = "mongodb://root:rootpassword@localhost:27017";
 
 exports.get = (req, res) => {
-  return res.status(200).json({
-    message: "ok",
-  });
+  // Connect to MongoDB
+  MongoClient.connect(
+    uri,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+    (err, client) => {
+      if (err) {
+        return console.log(err);
+      }
+      //   Specify database you want to access
+      const db = client.db("dashboard");
+      db.collection("api")
+        .find()
+        .sort({ _id: -1 })
+        .limit(1)
+        .toArray((err, data) => {
+          client.close();
+          res.send(data);
+        });
+    }
+  );
 };
 
 exports.post = (req, res) => {
@@ -25,8 +47,30 @@ exports.post = (req, res) => {
     });
   }
 
-  updateDb(req.body);
-  return res.status(200).json({
-    message: "po",
-  });
+  MongoClient.connect(
+    uri,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+    (err, client) => {
+      if (err) {
+        return console.log(err);
+      }
+
+      //   Specify database you want to access
+      const db = client.db("dashboard");
+      db.collection(req.body.collection)
+        .insertOne({
+          name: req.body.result.name,
+          created: new Date(),
+        })
+        .then(() => {
+          client.close();
+          return res.status(200).json({
+            message: "po",
+          });
+        });
+    }
+  );
 };
