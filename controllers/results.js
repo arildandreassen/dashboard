@@ -62,7 +62,8 @@ exports.post = (req, res) => {
       const db = client.db("dashboard");
       db.collection(req.body.collection)
         .insertOne({
-          name: req.body.result.name,
+          passed: req.body.result.passed,
+          failed: req.body.result.failed,
           created: new Date(),
         })
         .then(() => {
