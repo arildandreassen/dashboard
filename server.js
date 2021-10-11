@@ -55,6 +55,10 @@ server.on("listening", function () {
             `${new Date().toLocaleString()} updating current results from database`
           );
           allResults = json;
+          console.log(
+            `${new Date().toLocaleString()} broadcasting current results`
+          );
+          io.emit("update", allResults);
         });
       }
     );
@@ -68,11 +72,6 @@ server.on("listening", function () {
 io.on("connection", (socket) => {
   console.log(`${new Date().toLocaleString()} client connected`);
   socket.emit("update", allResults);
-
-  setInterval(() => {
-    console.log(`${new Date().toLocaleString()} sending current results`);
-    socket.emit("update", allResults);
-  }, 10000);
 
   socket.on("disconnect", () => {
     console.log(`${new Date().toLocaleString()} client disconnected`);
