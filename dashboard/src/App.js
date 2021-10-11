@@ -8,7 +8,6 @@ function App() {
 
   useEffect(() => {
     socket.on("update", (data) => {
-      console.log(data);
       setGraphdata(data);
     });
   }, []);

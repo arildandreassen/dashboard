@@ -1,5 +1,4 @@
 const express = require("express");
-const WebSocket = require("ws");
 const http = require("http");
 const socketIo = require("socket.io");
 const healthcheck = require("./routes/healthcheck");
@@ -9,21 +8,19 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 const port = process.env.PORT || 5000;
-// const wss = new WebSocket.Server({ port: 8082 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/", healthcheck);
 app.use("/", results);
 
+let allResults;
+
 server.listen(port, () => {
   console.log(`SERVER READY ON PORT ${port}`);
 });
 
-io.on("connection", (socket) => {
-  console.log("connection");
-  const time = new Date();
-
+server.on("listening", function () {
   const req = http.request(
     {
       hostname: "localhost",
@@ -34,8 +31,7 @@ io.on("connection", (socket) => {
     (result) => {
       result.on("data", (data) => {
         const json = JSON.parse(data);
-        console.log(`${time}: -updated results`);
-        socket.emit("update", json);
+        allResults = json;
       });
     }
   );
@@ -45,8 +41,6 @@ io.on("connection", (socket) => {
   req.end();
 
   setInterval(() => {
-    const time = new Date();
-
     const req = http.request(
       {
         hostname: "localhost",
@@ -57,8 +51,10 @@ io.on("connection", (socket) => {
       (result) => {
         result.on("data", (data) => {
           const json = JSON.parse(data);
-          console.log(`${time}: -updated results`);
-          io.emit("update", json);
+          console.log(
+            `${new Date().toLocaleString()} updating current results from database`
+          );
+          allResults = json;
         });
       }
     );
@@ -67,4 +63,18 @@ io.on("connection", (socket) => {
     });
     req.end();
   }, 10000);
+});
+
+io.on("connection", (socket) => {
+  console.log(`${new Date().toLocaleString()} client connected`);
+  socket.emit("update", allResults);
+
+  setInterval(() => {
+    console.log(`${new Date().toLocaleString()} sending current results`);
+    socket.emit("update", allResults);
+  }, 10000);
+
+  socket.on("disconnect", () => {
+    console.log(`${new Date().toLocaleString()} client disconnected`);
+  });
 });
