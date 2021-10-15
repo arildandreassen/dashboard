@@ -23,7 +23,7 @@ server.listen(port, () => {
 server.on("listening", function () {
   const req = http.request(
     {
-      hostname: "localhost",
+      hostname: "server",
       port: 5000,
       method: "GET",
       path: "/results",
@@ -43,7 +43,7 @@ server.on("listening", function () {
   setInterval(() => {
     const req = http.request(
       {
-        hostname: "localhost",
+        hostname: "server",
         port: 5000,
         method: "GET",
         path: "/results",

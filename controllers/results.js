@@ -1,6 +1,6 @@
 const { MongoClient } = require("mongodb");
 
-const uri = "mongodb://root:rootpassword@localhost:27017";
+const uri = "mongodb://root:rootpassword@mongodb:27017";
 
 exports.get = (req, res) => {
   // Connect to MongoDB

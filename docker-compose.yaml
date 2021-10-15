@@ -1,12 +1,5 @@
 version: "3.9"
 services:
-  # app:
-  #   build:
-  #     context: ./
-  #     dockerfile: app.Dockerfile
-  #   ports:
-  #     - "5000:5000"
-
   mongodb:
     image: mongo:latest
     environment:
@@ -16,6 +9,24 @@ services:
       - 27017:27017
     volumes:
       - mongodb_data_container:/data/db
+
+  server:
+    build:
+      context: ./
+      dockerfile: server.Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongodb
+
+  dashboard:
+    build:
+      context: ./
+      dockerfile: app.Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
 
 volumes:
   mongodb_data_container:

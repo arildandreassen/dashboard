@@ -1,14 +1,12 @@
-FROM node
+FROM node:15
 
 WORKDIR /app
+COPY ./dashboard/package.json .
+RUN npm install
 
-COPY . /app
+COPY ./dashboard .
 
-RUN apt-get update &&\
-    apt-get install -y \
-    npm
-
-EXPOSE 5000
+EXPOSE 3000
 
 # ENTRYPOINT ['tail', '-f', '/dev/null'] 
-CMD [ "npm", "run", "server" ]
+CMD [ "npm", "run", "start" ]
